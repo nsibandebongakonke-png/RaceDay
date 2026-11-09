@@ -1,0 +1,74 @@
+@model ResultsEntryViewModel
+@{
+    ViewData["Title"] = "Results";
+    var concluded = Model.EventDate <= DateTime.Now;
+}
+<div class="page-header">
+    <a asp-controller="Results" asp-action="Index" class="back-link">&larr; All events</a>
+    <h1>Results</h1>
+    <p>@Model.EventName &middot; @Model.EventDate.ToString("d MMM yyyy")</p>
+</div>
+
+@if (!concluded)
+{
+    <div class="alert alert-warning">This event has not taken place yet. Results can only be captured once it has finished.</div>
+}
+
+@if (!Model.Rows.Any())
+{
+    <div class="empty-state"><p>There are no active enrolments for this event.</p></div>
+}
+else
+{
+    <form asp-action="Save" method="post" novalidate>
+        <input type="hidden" asp-for="EventId" />
+        <input type="hidden" asp-for="EventName" />
+        <input type="hidden" asp-for="EventDate" />
+
+        <div class="panel">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr><th>Participant</th><th>Category</th><th>Status</th><th style="width:160px">Finish time</th><th style="width:110px">Position</th><th class="text-center">Publish</th></tr>
+                    </thead>
+                    <tbody>
+                    @for (var i = 0; i < Model.Rows.Count; i++)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@Model.Rows[i].ParticipantName</strong>
+                                <input type="hidden" asp-for="Rows[i].EnrolmentId" />
+                                <input type="hidden" asp-for="Rows[i].ResultId" />
+                                <input type="hidden" asp-for="Rows[i].ParticipantName" />
+                                <input type="hidden" asp-for="Rows[i].CategoryName" />
+                                <input type="hidden" asp-for="Rows[i].EnrolmentStatus" />
+                            </td>
+                            <td>@Model.Rows[i].CategoryName</td>
+                            <td><partial name="_StatusBadge" model="Model.Rows[i].EnrolmentStatus" /></td>
+                            <td>
+                                <input asp-for="Rows[i].FinishTime" class="form-control form-control-sm" placeholder="hh:mm:ss" disabled="@(!concluded)" />
+                                <span asp-validation-for="Rows[i].FinishTime" class="text-danger small"></span>
+                            </td>
+                            <td>
+                                <input asp-for="Rows[i].Position" type="number" min="1" class="form-control form-control-sm" disabled="@(!concluded)" />
+                                <span asp-validation-for="Rows[i].Position" class="text-danger small"></span>
+                            </td>
+                            <td class="text-center">
+                                <div class="form-check form-switch d-inline-block">
+                                    <input asp-for="Rows[i].Published" class="form-check-input" disabled="@(!concluded)" />
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-3 mt-3">
+            <button type="submit" class="btn btn-raceday" disabled="@(!concluded)">Save results</button>
+            <span class="small text-muted">Only published results are visible to participants.</span>
+        </div>
+    </form>
+}
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

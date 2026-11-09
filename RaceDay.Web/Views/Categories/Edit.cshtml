@@ -1,0 +1,40 @@
+@model CategoryFormViewModel
+@{
+    ViewData["Title"] = "Edit category";
+}
+<div class="page-header">
+    <a asp-action="Index" asp-route-eventId="@Model.EventId" class="back-link">&larr; Back to categories</a>
+    <h1>Edit category</h1>
+</div>
+
+<div class="panel panel-narrow">
+    <form asp-action="Edit" asp-route-eventId="@Model.EventId" asp-route-id="@Model.CategoryId" method="post" novalidate>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="CategoryType" class="form-label"></label>
+            <select asp-for="CategoryType" class="form-select">
+                @foreach (var t in EventOptions.CategoryTypes)
+                {
+                    <option value="@t" selected="@(Model.CategoryType == t)">@t</option>
+                }
+            </select>
+            <span asp-validation-for="CategoryType" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Description" class="text-danger small"></span>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-raceday">Save changes</button>
+            <a asp-action="Index" asp-route-eventId="@Model.EventId" class="btn btn-outline-dark">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

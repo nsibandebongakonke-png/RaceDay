@@ -1,0 +1,32 @@
+@model EventPickerViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+<div class="page-header">
+    <h1>@Model.Title</h1>
+    <p>@Model.Subtitle</p>
+</div>
+
+@if (!Model.Events.Any())
+{
+    <div class="empty-state">
+        <p>You have not created any events yet.</p>
+        <a asp-controller="ManageEvents" asp-action="Create" class="btn btn-raceday">Create your first event</a>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var ev in Model.Events)
+        {
+            <div class="col-md-6 col-lg-4">
+                <a asp-controller="@Model.Controller" asp-action="Index" asp-route-eventId="@ev.EventId" class="picker-card">
+                    <span class="type-pill type-@ev.EventType.ToLowerInvariant()">@ev.EventType</span>
+                    <strong>@ev.Name</strong>
+                    <span class="event-meta">@ev.Date.ToString("d MMM yyyy") · @ev.Location</span>
+                    <span class="event-meta">@ev.EnrolmentCount enrolled</span>
+                </a>
+            </div>
+        }
+    </div>
+}

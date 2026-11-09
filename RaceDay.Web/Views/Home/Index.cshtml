@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = "Welcome";
+}
+<section class="hero">
+    <div class="hero-inner">
+        <p class="hero-kicker">Run &middot; Walk &middot; Ride</p>
+        <h1>Race day <em>starts here.</em></h1>
+        <p class="hero-lead">Find your next event, pick your category and enrol in seconds. Organisers manage events, entries and results in one place.</p>
+        <div class="d-flex gap-2 flex-wrap">
+            <a asp-controller="Account" asp-action="Register" class="btn btn-raceday btn-lg">Create an account</a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-lg">Log in</a>
+        </div>
+    </div>
+</section>
+
+<section class="row g-3 mt-2">
+    <div class="col-md-6">
+        <div class="feature-card">
+            <h2>For participants</h2>
+            <p>Browse upcoming runs, walks and cycle races, enrol with the category that suits you, and track your finish times and positions.</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="feature-card">
+            <h2>For organisers</h2>
+            <p>Create events with banner images, set age and distance categories, review enrolments and publish results after the finish line.</p>
+        </div>
+    </div>
+</section>

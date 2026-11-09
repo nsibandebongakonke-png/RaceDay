@@ -1,0 +1,77 @@
+@model CategoriesPageViewModel
+@{
+    ViewData["Title"] = "Categories";
+}
+<div class="page-header">
+    <a asp-controller="Categories" asp-action="Index" class="back-link">&larr; All events</a>
+    <h1>Categories</h1>
+    <p>@Model.Event.Name &middot; @Model.Event.Date.ToString("d MMM yyyy")</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="panel">
+            <h2 class="panel-title">Current categories</h2>
+            @if (!Model.Event.Categories.Any())
+            {
+                <p class="text-muted mb-0">No categories yet. Add an age or distance category using the form.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead><tr><th>Name</th><th>Type</th><th class="text-center">Enrolled</th><th></th></tr></thead>
+                        <tbody>
+                        @foreach (var c in Model.Event.Categories)
+                        {
+                            <tr>
+                                <td><strong>@c.Name</strong>@if (!string.IsNullOrWhiteSpace(c.Description)){<div class="small text-muted">@c.Description</div>}</td>
+                                <td><span class="type-pill type-@c.CategoryType.ToLowerInvariant()">@c.CategoryType</span></td>
+                                <td class="text-center">@c.EnrolmentCount</td>
+                                <td class="text-end text-nowrap">
+                                    <a asp-action="Edit" asp-route-eventId="@Model.Event.EventId" asp-route-id="@c.CategoryId" class="btn btn-outline-dark btn-sm">Edit</a>
+                                    <form asp-action="Delete" asp-route-eventId="@Model.Event.EventId" asp-route-id="@c.CategoryId" method="post" class="d-inline"
+                                          data-confirm="Delete the category &quot;@c.Name&quot;?">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="panel">
+            <h2 class="panel-title">Add a category</h2>
+            <form asp-action="Create" asp-route-eventId="@Model.Event.EventId" method="post" novalidate>
+                <div class="mb-3">
+                    <label asp-for="NewCategory.Name" class="form-label"></label>
+                    <input asp-for="NewCategory.Name" class="form-control" placeholder="e.g. Under 20 or 21km" />
+                    <span asp-validation-for="NewCategory.Name" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="NewCategory.CategoryType" class="form-label"></label>
+                    <select asp-for="NewCategory.CategoryType" class="form-select">
+                        @foreach (var t in EventOptions.CategoryTypes)
+                        {
+                            <option value="@t" selected="@(Model.NewCategory.CategoryType == t)">@t</option>
+                        }
+                    </select>
+                    <span asp-validation-for="NewCategory.CategoryType" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="NewCategory.Description" class="form-label"></label>
+                    <textarea asp-for="NewCategory.Description" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="NewCategory.Description" class="text-danger small"></span>
+                </div>
+                <button type="submit" class="btn btn-raceday">Add category</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

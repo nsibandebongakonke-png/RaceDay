@@ -1,0 +1,92 @@
+@model EventDetailsViewModel
+@{
+    var ev = Model.Event;
+    ViewData["Title"] = ev.Name;
+    var banner = Url.ImageUrl(ev.BannerImage);
+    var isParticipant = Context.Session.IsParticipant();
+    var past = ev.Date < DateTime.Now;
+}
+<a href="@Url.Action(Context.Session.HomeActionName(), Context.Session.HomeControllerName())" class="back-link">&larr; Back</a>
+
+<div class="detail-hero">
+    @if (banner is not null)
+    {
+        <img src="@banner" alt="Banner for @ev.Name" class="detail-banner" />
+    }
+    else
+    {
+        <div class="detail-banner detail-banner-placeholder"><span>@ev.EventType</span></div>
+    }
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-lg-8">
+        <span class="type-pill type-@ev.EventType.ToLowerInvariant()">@ev.EventType</span>
+        <h1 class="mt-2">@ev.Name</h1>
+        <dl class="detail-facts">
+            <div><dt>Date</dt><dd>@ev.Date.ToString("dddd, d MMMM yyyy · HH:mm")</dd></div>
+            <div><dt>Location</dt><dd>@ev.Location</dd></div>
+            <div><dt>Distance</dt><dd>@ev.Distance</dd></div>
+            <div><dt>Organiser</dt><dd>@ev.OrganiserName</dd></div>
+        </dl>
+        @if (!string.IsNullOrWhiteSpace(ev.Description))
+        {
+            <p class="detail-description">@ev.Description</p>
+        }
+    </div>
+
+    <div class="col-lg-4">
+        <div class="panel">
+            <h2 class="panel-title">Categories</h2>
+            @if (!ev.Categories.Any())
+            {
+                <p class="text-muted mb-0">The organiser has not added any categories yet.</p>
+            }
+            else if (isParticipant && Model.MyEnrolment is not null)
+            {
+                <ul class="category-list">
+                    @foreach (var c in ev.Categories)
+                    {
+                        <li><strong>@c.Name</strong> <span class="type-pill type-@c.CategoryType.ToLowerInvariant()">@c.CategoryType</span></li>
+                    }
+                </ul>
+                <div class="enrolled-box">
+                    <div class="small text-muted mb-1">You are enrolled</div>
+                    <div><strong>@Model.MyEnrolment.CategoryName</strong> <partial name="_StatusBadge" model="Model.MyEnrolment.Status" /></div>
+                </div>
+            }
+            else if (isParticipant && !past)
+            {
+                <form asp-action="Enrol" method="post" novalidate>
+                    <input type="hidden" name="EventId" value="@ev.EventId" />
+                    <div class="category-options">
+                        @foreach (var c in ev.Categories)
+                        {
+                            <label class="category-option">
+                                <input type="radio" name="CategoryId" value="@c.CategoryId" required />
+                                <span>
+                                    <strong>@c.Name</strong>
+                                    <small>@c.CategoryType@(string.IsNullOrWhiteSpace(c.Description) ? "" : " · " + c.Description)</small>
+                                </span>
+                            </label>
+                        }
+                    </div>
+                    <button type="submit" class="btn btn-raceday w-100 mt-3">Enrol now</button>
+                </form>
+            }
+            else
+            {
+                <ul class="category-list">
+                    @foreach (var c in ev.Categories)
+                    {
+                        <li><strong>@c.Name</strong> <span class="type-pill type-@c.CategoryType.ToLowerInvariant()">@c.CategoryType</span>@if (!string.IsNullOrWhiteSpace(c.Description)){<div class="small text-muted">@c.Description</div>}</li>
+                    }
+                </ul>
+                @if (past)
+                {
+                    <p class="small text-muted mb-0">This event has already taken place.</p>
+                }
+            }
+        </div>
+    </div>
+</div>

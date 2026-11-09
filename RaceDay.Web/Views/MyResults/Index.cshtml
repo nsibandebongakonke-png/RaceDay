@@ -1,0 +1,51 @@
+@model List<MyResultDto>
+@{
+    ViewData["Title"] = "My results";
+}
+<div class="page-header">
+    <h1>My results</h1>
+    <p>Your race history across every completed event.</p>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <p>No results yet. Results appear here once an organiser publishes them after your event.</p>
+        <a asp-controller="MyEnrolments" asp-action="Index" class="btn btn-raceday">View my enrolments</a>
+    </div>
+}
+else
+{
+    <div class="panel">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead><tr><th>Event</th><th>Date</th><th>Category</th><th>Finish time</th><th>Position</th></tr></thead>
+                <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td><strong>@r.EventName</strong></td>
+                        <td>@r.EventDate.ToString("d MMM yyyy")</td>
+                        <td>@r.CategoryName</td>
+                        <td class="finish-time">@(r.FinishTime ?? "—")</td>
+                        <td>
+                            @if (r.Position is int pos)
+                            {
+                                <span class="position-pill">@UiHelpers.Ordinal(pos)</span>
+                                @if (r.TotalFinishers > 0)
+                                {
+                                    <span class="small text-muted"> out of @r.TotalFinishers finishers</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

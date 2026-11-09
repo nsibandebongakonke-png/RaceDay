@@ -1,0 +1,60 @@
+# Runs the whole RaceDay stack with ONE command:   docker compose up --build
+#   web   -> http://localhost:5200   (ASP.NET Core MVC)
+#   api   -> http://localhost:5100/swagger
+#   azurite = a local Azure Blob Storage emulator (swap for a real storage account, see README)
+#   sqlserver = SQL Server for the API
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      MSSQL_SA_PASSWORD: "RaceDay_Str0ng!Pass"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    command: azurite-blob --blobHost 0.0.0.0 --skipApiVersionCheck
+    ports:
+      - "10000:10000"
+    volumes:
+      - blobdata:/data
+
+  api:
+    build: ./RaceDay.Api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      azurite:
+        condition: service_started
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=RaceDayApiDb;User Id=sa;Password=RaceDay_Str0ng!Pass;TrustServerCertificate=True"
+      # Real Azure: set AZURE_STORAGE_CONNECTION_STRING in a .env file next to this one. Otherwise Azurite is used.
+      AzureBlob__ConnectionString: "${AZURE_STORAGE_CONNECTION_STRING:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;}"
+      AzureBlob__ContainerName: "raceday-images"
+      Seed__DemoData: "true"
+    ports:
+      - "5100:8080"
+
+  web:
+    build: ./RaceDay.Web
+    depends_on:
+      - api
+    environment:
+      ApiSettings__BaseUrl: "http://api:8080"
+    ports:
+      - "5200:8080"
+
+volumes:
+  sqldata:
+  blobdata:

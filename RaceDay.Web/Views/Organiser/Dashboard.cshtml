@@ -1,0 +1,72 @@
+@model OrganiserDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<div class="page-header d-flex justify-content-between align-items-end flex-wrap gap-2">
+    <div>
+        <h1>Dashboard</h1>
+        <p>Your events at a glance.</p>
+    </div>
+    <a asp-controller="ManageEvents" asp-action="Create" class="btn btn-raceday">+ New event</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-4"><div class="stat-tile"><span class="stat-number">@Model.TotalEvents</span><span class="stat-label">Events created</span></div></div>
+    <div class="col-sm-4"><div class="stat-tile"><span class="stat-number">@Model.TotalEnrolments</span><span class="stat-label">Total enrolments</span></div></div>
+    <div class="col-sm-4"><div class="stat-tile"><span class="stat-number">@Model.Events.Count(e => e.Date >= DateTime.Today)</span><span class="stat-label">Upcoming events</span></div></div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="panel">
+            <h2 class="panel-title">Enrolments per event</h2>
+            @if (!Model.Events.Any())
+            {
+                <p class="text-muted mb-0">No events yet. Create one to get started.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead><tr><th>Event</th><th>Date</th><th class="text-end">Enrolments</th><th></th></tr></thead>
+                        <tbody>
+                        @foreach (var ev in Model.Events.OrderByDescending(e => e.Date))
+                        {
+                            <tr>
+                                <td><strong>@ev.Name</strong><div class="small text-muted">@ev.Location</div></td>
+                                <td>@ev.Date.ToString("d MMM yyyy")</td>
+                                <td class="text-end"><span class="count-pill">@ev.EnrolmentCount</span></td>
+                                <td class="text-end"><a asp-controller="Enrolments" asp-action="Index" asp-route-eventId="@ev.EventId" class="btn btn-outline-dark btn-sm">View</a></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="panel">
+            <h2 class="panel-title">Upcoming event dates</h2>
+            @if (!Model.Upcoming.Any())
+            {
+                <p class="text-muted mb-0">No upcoming events.</p>
+            }
+            else
+            {
+                <ul class="upcoming-list">
+                    @foreach (var ev in Model.Upcoming)
+                    {
+                        <li>
+                            <div class="date-chip"><span>@ev.Date.ToString("MMM")</span><strong>@ev.Date.ToString("dd")</strong></div>
+                            <div>
+                                <strong>@ev.Name</strong>
+                                <div class="small text-muted">@ev.Date.ToString("HH:mm") &middot; @ev.Location</div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</div>

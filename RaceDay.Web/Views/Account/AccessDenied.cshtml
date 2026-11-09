@@ -1,0 +1,8 @@
+@{
+    ViewData["Title"] = "Access denied";
+}
+<div class="empty-state error-state">
+    <h1>Access denied</h1>
+    <p>Your account does not have access to that page.</p>
+    <a href="@Url.Action(Context.Session.HomeActionName(), Context.Session.HomeControllerName())" class="btn btn-raceday">Go to my home page</a>
+</div>

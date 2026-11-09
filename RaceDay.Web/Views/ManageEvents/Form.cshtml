@@ -1,0 +1,74 @@
+@model EventFormViewModel
+@{
+    var editing = Model.EventId > 0;
+    ViewData["Title"] = editing ? "Edit event" : "Create event";
+    var existing = Url.ImageUrl(Model.ExistingBanner);
+}
+<div class="page-header">
+    <h1>@(editing ? "Edit event" : "Create event")</h1>
+    <p>@(editing ? "Update the details below." : "Fill in the event details. You can add categories next.")</p>
+</div>
+
+<div class="panel">
+    <form method="post" enctype="multipart/form-data" asp-action="@(editing ? "Edit" : "Create")" asp-route-id="@(editing ? Model.EventId : (int?)null)" novalidate>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="EventType" class="form-label"></label>
+                <select asp-for="EventType" class="form-select">
+                    <option value="">Choose...</option>
+                    @foreach (var type in EventOptions.Types)
+                    {
+                        <option value="@type" selected="@(Model.EventType == type)">@type</option>
+                    }
+                </select>
+                <span asp-validation-for="EventType" class="text-danger small"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Date" class="form-label"></label>
+                <input asp-for="Date" type="datetime-local" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger small"></span>
+            </div>
+            <div class="col-md-5">
+                <label asp-for="Location" class="form-label"></label>
+                <input asp-for="Location" class="form-control" />
+                <span asp-validation-for="Location" class="text-danger small"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Distance" class="form-label"></label>
+                <input asp-for="Distance" class="form-control" placeholder="e.g. 21.1 km" />
+                <span asp-validation-for="Distance" class="text-danger small"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Banner" class="form-label"></label>
+                @if (existing is not null)
+                {
+                    <div class="mb-2"><img src="@existing" alt="Current banner" class="banner-preview" /></div>
+                }
+                <input asp-for="Banner" type="file" class="form-control" accept=".jpg,.jpeg,.png,.gif,.webp" />
+                <div class="form-text">JPG, PNG, GIF or WEBP, up to 5 MB. @(editing ? "Leave empty to keep the current banner." : "")</div>
+                <span asp-validation-for="Banner" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <input type="hidden" asp-for="ExistingBanner" />
+
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-raceday">@(editing ? "Save changes" : "Create event")</button>
+            <a asp-action="Index" class="btn btn-outline-dark">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
