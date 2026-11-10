@@ -111,3 +111,6 @@ Errors always look like `{ "message": "…" }`. `401` = not logged in, `403` = w
 
 ## Database
 Code-first with EF Core (`RaceDay.Api/Models/Entities.cs`), created on start-up with `EnsureCreated`. Tables: Users, Roles, Events, Categories, Enrolments, RaceResults. See `RaceDay_ERD.png` and `RaceDay_full.sql` for the original Part 1 design (Part 3 adds `Category.CategoryType`, `Enrolment.Status` values and `RaceResult.Published`).
+
+unlisted youtube link :
+
